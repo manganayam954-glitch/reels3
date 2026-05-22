@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>reels3 — multi-platform reels downloader</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <div class="logo">reels<span>3</span></div>
+      <p class="tagline">Download Reels dari YouTube, Instagram, Facebook, TikTok. Tanpa login, tanpa watermark, tanpa drama.</p>
+    </header>
+
+    <section class="card input-card">
+      <form id="form" autocomplete="off">
+        <input
+          type="url"
+          id="url"
+          placeholder="Tempel URL video di sini..."
+          required
+          autofocus
+        />
+        <button type="submit" id="submit-btn">
+          <span class="btn-text">Ambil video</span>
+          <span class="btn-spinner" hidden></span>
+        </button>
+      </form>
+      <div class="badges">
+        <span class="badge yt">YouTube Shorts</span>
+        <span class="badge ig">Instagram</span>
+        <span class="badge fb">Facebook</span>
+        <span class="badge tt">TikTok</span>
+      </div>
+    </section>
+
+    <section id="result" class="card result-card" hidden></section>
+    <section id="error" class="card error-card" hidden></section>
+
+    <footer>
+      <p>
+        Built with public broker chain. No accounts. No tracking. <br />
+        <a href="https://github.com/" target="_blank" rel="noopener">source on github</a>
+      </p>
+    </footer>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
