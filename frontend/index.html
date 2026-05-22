@@ -8,9 +8,18 @@
 </head>
 <body>
   <main class="wrap">
+    <div class="lang-bar">
+      <select id="lang-select" aria-label="Language">
+        <option value="id">🇮🇩 Indonesia</option>
+        <option value="en">🇬🇧 English</option>
+        <option value="ja">🇯🇵 日本語</option>
+        <option value="zh">🇨🇳 中文</option>
+      </select>
+    </div>
+
     <header>
       <div class="logo">reels<span>3</span></div>
-      <p class="tagline">Download Reels dari YouTube, Instagram, Facebook, TikTok. Tanpa login, tanpa watermark, tanpa drama.</p>
+      <p class="tagline" data-i18n="tagline">Download Reels dari YouTube, Instagram, Facebook, TikTok, Douyin. Tanpa login, tanpa watermark, tanpa drama.</p>
     </header>
 
     <section class="card input-card">
@@ -18,12 +27,13 @@
         <input
           type="url"
           id="url"
+          data-i18n-placeholder="placeholder"
           placeholder="Tempel URL video di sini..."
           required
           autofocus
         />
         <button type="submit" id="submit-btn">
-          <span class="btn-text">Ambil video</span>
+          <span class="btn-text" data-i18n="btn">Ambil video</span>
           <span class="btn-spinner" hidden></span>
         </button>
       </form>
@@ -41,8 +51,13 @@
 
     <footer>
       <p>
-        Built with public broker chain. No accounts. No tracking. <br />
+        <span data-i18n="footer1">Built with public broker chain. No accounts. No tracking.</span> <br />
         <a href="https://github.com/manganayam954-glitch/reels3" target="_blank" rel="noopener">source on github</a>
+      </p>
+      <p class="signature">
+        <span data-i18n="dev_by">Dikembangkan oleh</span>
+        <strong>Rury</strong>
+        <span class="sig-mark">✦</span>
       </p>
     </footer>
   </main>

@@ -215,3 +215,50 @@ footer {
   font-size: 13px;
 }
 footer a { color: var(--fg-muted); text-decoration: underline dotted; }
+
+.signature {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px dashed rgba(255,255,255,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 12px;
+  letter-spacing: 0.4px;
+  color: var(--fg-muted);
+}
+.signature strong {
+  font-family: "Brush Script MT", "Pacifico", "Lucida Handwriting", cursive;
+  font-size: 22px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 400;
+  letter-spacing: 1px;
+  margin: 0 2px;
+}
+.signature .sig-mark {
+  color: var(--accent);
+  font-size: 14px;
+  margin-left: 2px;
+}
+
+.lang-bar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+#lang-select {
+  background: var(--bg-3);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  outline: none;
+}
+#lang-select:hover { border-color: var(--accent); }
+#lang-select:focus { box-shadow: 0 0 0 2px rgba(92, 242, 194, 0.15); }
