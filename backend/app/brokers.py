@@ -164,6 +164,117 @@ async def broker_snapsave(client: httpx.AsyncClient, url: str, platform: Platfor
 
 
 # ---------------------------------------------------------------------------
+# Douyin (mobile amemv API — gives full metadata + multi-resolution formats)
+# ---------------------------------------------------------------------------
+
+DOUYIN_FEED = "https://api-hl.amemv.com/aweme/v1/feed/"
+DOUYIN_UA = "com.ss.android.ugc.aweme/220400 (Linux; U; Android 11; en_US; SM-G973F; Build/RP1A.200720.012; Cronet/TTNetVersion:1.0.0.39 2020-08-17 QuicVersion:7e5b0b0)"
+
+
+async def _douyin_resolve_aweme_id(client: httpx.AsyncClient, url: str) -> str | None:
+    """Follow share links until we land on /share/video/{id} or /video/{id}."""
+
+    import re as _re
+    m = _re.search(r"/(?:share/)?video/(\d+)", url)
+    if m:
+        return m.group(1)
+    try:
+        r = await client.head(url, headers={"User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0)"}, follow_redirects=True)
+        for resp in [r] + (r.history or []):
+            for u in [str(resp.url), resp.headers.get("location", "")]:
+                m = _re.search(r"/(?:share/)?video/(\d+)", u)
+                if m:
+                    return m.group(1)
+    except Exception:
+        pass
+    return None
+
+
+async def broker_douyin(client: httpx.AsyncClient, url: str, platform: Platform) -> BrokerResult:
+    name = "douyin.amemv"
+    try:
+        aweme_id = await _douyin_resolve_aweme_id(client, url)
+        if not aweme_id:
+            return BrokerResult(False, name, error="couldn't resolve douyin aweme id")
+
+        r = await client.get(DOUYIN_FEED, params={
+            "aweme_id": aweme_id,
+            "version_code": "22.4.0",
+            "device_platform": "android",
+            "aid": "1128",
+        }, headers={"User-Agent": DOUYIN_UA})
+        data = r.json()
+        items = data.get("aweme_list") or []
+        if not items:
+            return BrokerResult(False, name, error="douyin returned empty feed")
+        aw = items[0]
+
+        title = (aw.get("desc") or "").strip() or None
+        author = (aw.get("author") or {}).get("nickname")
+        duration_ms = aw.get("duration") or 0
+        cover_urls = (aw.get("video", {}).get("cover", {}) or {}).get("url_list") or []
+        thumb = cover_urls[0] if cover_urls else None
+
+        v = aw.get("video") or {}
+        formats: list[VideoFormat] = []
+        seen_urls: set[str] = set()
+        seen_qualities: set[tuple[int, int]] = set()
+
+        def _add(label: str, url: str | None, w: int, h: int, size: int | None = None) -> None:
+            if not url or url in seen_urls:
+                return
+            seen_urls.add(url)
+            key = (w, h)
+            if key in seen_qualities and label != "Original":
+                return
+            seen_qualities.add(key)
+            formats.append(VideoFormat(quality=label, url=url, ext="mp4", filesize=size))
+
+        for br in v.get("bit_rate") or []:
+            pa = br.get("play_addr") or {}
+            urls = pa.get("url_list") or []
+            if not urls:
+                continue
+            w, h = pa.get("width") or 0, pa.get("height") or 0
+            label = f"{h}p" if h else (br.get("gear_name") or "auto")
+            _add(label, urls[0], w, h, pa.get("data_size"))
+
+        # download_addr is usually the original / highest quality (no watermark on Douyin).
+        da = v.get("download_addr") or {}
+        if da.get("url_list"):
+            _add("Original", da["url_list"][0], da.get("width") or 0, da.get("height") or 0, da.get("data_size"))
+
+        # Fallback: top-level play_addr if everything else missed.
+        if not formats:
+            pa = v.get("play_addr") or {}
+            if pa.get("url_list"):
+                _add("default", pa["url_list"][0], pa.get("width") or 0, pa.get("height") or 0, pa.get("data_size"))
+
+        # Sort highest-quality first; "Original" wins ties.
+        def _sort_key(f: VideoFormat) -> tuple[int, int]:
+            q = f.quality
+            if q == "Original":
+                return (10_000, 1)
+            digits = "".join(ch for ch in q if ch.isdigit())
+            return (int(digits) if digits else 0, 0)
+
+        formats.sort(key=_sort_key, reverse=True)
+
+        if not formats:
+            return BrokerResult(False, name, error="no video URLs found")
+        return BrokerResult(
+            True, name,
+            title=title,
+            thumbnail=thumb,
+            duration=(duration_ms / 1000.0) if duration_ms else None,
+            uploader=author,
+            formats=formats,
+        )
+    except Exception as e:
+        return BrokerResult(False, name, error=f"{type(e).__name__}: {e}")
+
+
+# ---------------------------------------------------------------------------
 # Chain registry
 # ---------------------------------------------------------------------------
 
@@ -172,6 +283,7 @@ _CHAINS: dict[Platform, list[Callable[..., Awaitable[BrokerResult]]]] = {
     "instagram": [broker_loader, broker_snapsave],
     "facebook":  [broker_snapsave, broker_loader],
     "tiktok":    [broker_tikwm, broker_loader],
+    "douyin":    [broker_douyin, broker_loader],
 }
 
 

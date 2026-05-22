@@ -11,6 +11,7 @@ _HOSTS: dict[Platform, tuple[str, ...]] = {
     "instagram": ("instagram.com", "instagr.am"),
     "facebook": ("facebook.com", "fb.watch", "fb.com", "m.facebook.com"),
     "tiktok": ("tiktok.com", "vm.tiktok.com", "vt.tiktok.com", "m.tiktok.com"),
+    "douyin": ("douyin.com", "v.douyin.com", "iesdouyin.com"),
 }
 
 

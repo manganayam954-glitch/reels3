@@ -6,7 +6,7 @@ from typing import Literal, Optional
 
 from pydantic import BaseModel, Field
 
-Platform = Literal["youtube", "instagram", "facebook", "tiktok", "other"]
+Platform = Literal["youtube", "instagram", "facebook", "tiktok", "douyin", "other"]
 
 
 class ExtractRequest(BaseModel):

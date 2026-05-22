@@ -131,26 +131,42 @@ header {
 .badge.ig { color: #ff8ad1; border-color: #4a2740; }
 .badge.fb { color: #80a8ff; border-color: #283c5e; }
 .badge.tt { color: #5cf2c2; border-color: #245b50; }
+.badge.dy { color: #ff7eb8; border-color: #5b2740; }
 
 .result-card .meta {
   display: flex;
-  gap: 16px;
+  gap: 18px;
   margin-bottom: 20px;
   align-items: flex-start;
   flex-wrap: wrap;
 }
 .result-card .meta img {
-  width: 140px;
-  border-radius: 10px;
+  width: 220px;
+  max-width: 100%;
+  aspect-ratio: 9 / 16;
+  object-fit: cover;
+  border-radius: 12px;
   flex-shrink: 0;
   background: #000;
+  box-shadow: 0 4px 14px rgba(0,0,0,.5);
 }
-.result-card .meta-text { flex: 1 1 220px; min-width: 200px; }
+.result-card .meta-text { flex: 1 1 240px; min-width: 220px; }
 .result-card .title {
   font-size: 17px;
   font-weight: 600;
   margin: 0 0 6px;
-  line-height: 1.35;
+  line-height: 1.4;
+  word-break: break-word;
+}
+.result-card .desc {
+  color: var(--fg-muted);
+  font-size: 13px;
+  margin: 6px 0 12px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 9em;
+  overflow: auto;
+  line-height: 1.5;
 }
 .result-card .uploader {
   color: var(--fg-muted);

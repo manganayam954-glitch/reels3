@@ -43,11 +43,25 @@ function showResult(data) {
   resultEl.hidden = false;
   const platformBadge = `<span class="badge ${data.platform.slice(0,2)}">${escapeHtml(data.platform)}</span>`;
   const broker = data.broker ? `<span class="broker">via ${escapeHtml(data.broker)}</span>` : "";
-  const thumb = data.thumbnail ? `<img src="${escapeHtml(data.thumbnail)}" alt="" />` : "";
+  const thumb = data.thumbnail ? `<img src="${escapeHtml(data.thumbnail)}" alt="" referrerpolicy="no-referrer" />` : "";
   const uploader = data.uploader ? `<p class="uploader">@${escapeHtml(data.uploader)}</p>` : "";
-  const duration = data.duration ? ` · ${Math.round(data.duration)}s` : "";
 
-  const safeTitle = (data.title || `${data.platform}-video`).replace(/[^\w\-. ]+/g, "_").slice(0, 80);
+  // Title vs description: many platforms put the caption in `title`. Show both.
+  const rawTitle = (data.title || `${data.platform}-video`).trim();
+  const isLongCaption = rawTitle.length > 80 || rawTitle.includes("\n");
+  const titleText = isLongCaption ? rawTitle.slice(0, 80).replace(/\n.*/, "") + "…" : rawTitle;
+  const descBlock = isLongCaption ? `<div class="desc">${escapeHtml(rawTitle)}</div>` : "";
+
+  const safeTitle = rawTitle.replace(/[^\w\-. ]+/g, "_").slice(0, 80) || `${data.platform}-video`;
+
+  let durationLabel = "";
+  if (data.duration) {
+    const s = Math.round(data.duration);
+    const mm = Math.floor(s / 60);
+    const ss = (s % 60).toString().padStart(2, "0");
+    durationLabel = `<span class="meta-tag">⏱ ${mm}:${ss}</span>`;
+  }
+
   const formatRows = data.formats.map((f) => {
     const dlUrl = `${apiBase}/api/download?url=${encodeURIComponent(f.url)}&filename=${encodeURIComponent(safeTitle + "." + (f.ext || "mp4"))}`;
     const sizeTag = f.filesize ? `<span class="meta-tag">${fmtBytes(f.filesize)}</span>` : "";
@@ -62,9 +76,10 @@ function showResult(data) {
     <div class="meta">
       ${thumb}
       <div class="meta-text">
-        <h2 class="title">${escapeHtml(data.title || "Video")}</h2>
+        <h2 class="title">${escapeHtml(titleText)}</h2>
         ${uploader}
-        <div>${platformBadge} ${broker}${duration ? `<span class="meta-tag">${duration}</span>` : ""}</div>
+        <div class="meta-tags">${platformBadge} ${broker} ${durationLabel}</div>
+        ${descBlock}
       </div>
     </div>
     <div class="formats">
